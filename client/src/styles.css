@@ -116,4 +116,9 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; colo
 .empty { text-align: center; padding: 60px 0; }
 .footer { text-align: center; color: var(--muted); padding: 24px; border-top: 1px solid var(--border); }
 
+.sort-bar { margin: 20px 0 16px; flex-wrap: wrap; gap: 12px; }
+.sort-select { width: auto; min-width: 160px; padding: 6px 12px; font-size: 0.9rem; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 36px; padding: 16px 0; }
+
 /* TODO: detail-layout and search-bar break on mobile (<768px) - see "Mobile responsive" issue */
+
