@@ -7,13 +7,19 @@ import { formatDate, formatINR } from '../../utils/format.js';
 export default function HostDashboard() {
   const [listings, setListings] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [stats, setStats] = useState(null);
   const [error, setError] = useState('');
 
   const load = () => {
-    Promise.all([api.get('/listings/mine'), api.get('/bookings/host')])
-      .then(([l, b]) => {
+    Promise.all([
+      api.get('/listings/mine'),
+      api.get('/bookings/host'),
+      api.get('/bookings/host/stats'),
+    ])
+      .then(([l, b, s]) => {
         setListings(l.data);
         setBookings(b.data);
+        setStats(s.data);
       })
       .catch((err) => setError(getErrorMessage(err)));
   };
@@ -29,20 +35,48 @@ export default function HostDashboard() {
 
   const remove = async (id) => {
     if (!window.confirm('Delete this listing?')) return;
-    await api.delete(`/listings/${id}`);
-    load();
+    try {
+      await api.delete(`/listings/${id}`);
+      load();
+    } catch (err) {
+      alert(getErrorMessage(err));
+    }
   };
 
   if (error) return <p className="error">{error}</p>;
   if (!listings) return <Loader />;
 
-  // TODO: earnings summary cards (total earnings, upcoming check-ins, occupancy).
   return (
     <section>
       <div className="row-between">
         <h1>Host Dashboard</h1>
         <Link to="/host/listings/new" className="btn">+ New listing</Link>
       </div>
+
+      {stats && (
+        <div className="stats-grid">
+          <div className="stat-card">
+            <span className="stat-label">Total Earnings</span>
+            <span className="stat-value">{formatINR(stats.totalEarnings)}</span>
+            <span className="muted small">Completed bookings</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-label">Upcoming Check-ins</span>
+            <span className="stat-value">{stats.upcomingCheckIns}</span>
+            <span className="muted small">Next 7 days</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-label">Pending Requests</span>
+            <span className="stat-value">{stats.pendingRequests}</span>
+            <span className="muted small">Requires action</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-label">Average Rating</span>
+            <span className="stat-value">{stats.avgRating > 0 ? `★ ${stats.avgRating}` : '—'}</span>
+            <span className="muted small">Across all stays</span>
+          </div>
+        </div>
+      )}
 
       <h2>Booking requests</h2>
       {bookings.length === 0 && <p className="muted">No bookings yet.</p>}
@@ -95,3 +129,4 @@ export default function HostDashboard() {
     </section>
   );
 }
+
