@@ -41,10 +41,14 @@ h2 { text-transform: none; }
 }
 .btn:hover { background: var(--primary-dark); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-sm { padding: 5px 12px; font-size: 0.85rem; }
 .btn-ghost { background: transparent; color: var(--primary) !important; border: 1px solid var(--border); }
 .btn-ghost:hover { background: var(--bg); }
+.btn-ghost.btn-danger { color: var(--danger) !important; border-color: #fca5a5; }
+.btn-ghost.btn-danger:hover { background: #fef2f2; }
 .btn-danger { background: var(--danger); }
 .full { width: 100%; }
+
 
 input, select, textarea {
   padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius);
@@ -89,9 +93,12 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; colo
 .reviews { margin-top: 32px; }
 .review { padding: 12px 0; border-bottom: 1px solid var(--border); }
 .review p { margin: 6px 0 0; }
+.review-actions { display: flex; gap: 8px; margin-top: 10px; }
+.review-edit-form { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
 .stars { display: flex; gap: 2px; }
 .star { background: none; border: none; font-size: 1.5rem; color: #d9cfc4; cursor: pointer; padding: 0; }
 .star.on, .stars-static { color: #f2a33a; }
+
 
 .form { padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 520px; margin-top: 20px; }
 .form.wide { max-width: 720px; margin: 0 auto; }
