@@ -27,16 +27,37 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const logout = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setUser(null);
+  const toggleWishlist = async (listingId) => {
+    if (!user) return false;
+    const { data } = await api.post(`/auth/wishlist/${listingId}`);
+    const updated = { ...user, wishlist: data.wishlist };
+    saveUser(updated);
+    return data.isWishlisted;
+  };
+
+  const isWishlisted = (listingId) => {
+    if (!user || !user.wishlist) return false;
+    return user.wishlist.some(
+      (id) => (typeof id === 'string' ? id : id._id || id.toString()) === listingId.toString()
+    );
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isHost: user?.role === 'host' }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        toggleWishlist,
+        isWishlisted,
+        isHost: user?.role === 'host',
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => useContext(AuthContext);
+

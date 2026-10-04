@@ -8,6 +8,7 @@ const userResponse = (user) => ({
   email: user.email,
   role: user.role,
   avatar: user.avatar,
+  wishlist: user.wishlist || [],
   token: generateToken(user._id),
 });
 
@@ -51,3 +52,38 @@ export const login = asyncHandler(async (req, res) => {
 export const getMe = asyncHandler(async (req, res) => {
   res.json(req.user);
 });
+
+// GET /api/auth/wishlist
+export const getWishlist = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate({
+    path: 'wishlist',
+    match: { isActive: true },
+    populate: { path: 'host', select: 'name' },
+  });
+  res.json(user?.wishlist || []);
+});
+
+// POST /api/auth/wishlist/:listingId or POST /api/auth/wishlist (toggle)
+export const toggleWishlist = asyncHandler(async (req, res) => {
+  const listingId = req.params.listingId || req.body.listingId;
+  if (!listingId) {
+    res.status(400);
+    throw new Error('Listing ID is required');
+  }
+
+  const user = await User.findById(req.user._id);
+  const index = user.wishlist.findIndex((id) => id.toString() === listingId.toString());
+  let isWishlisted = false;
+
+  if (index > -1) {
+    user.wishlist.splice(index, 1);
+    isWishlisted = false;
+  } else {
+    user.wishlist.push(listingId);
+    isWishlisted = true;
+  }
+
+  await user.save();
+  res.json({ wishlist: user.wishlist, isWishlisted });
+});
+
