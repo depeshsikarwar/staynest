@@ -29,9 +29,14 @@ export default function HostDashboard() {
 
   const remove = async (id) => {
     if (!window.confirm('Delete this listing?')) return;
-    await api.delete(`/listings/${id}`);
-    load();
+    try {
+      await api.delete(`/listings/${id}`);
+      load();
+    } catch (err) {
+      alert(getErrorMessage(err));
+    }
   };
+
 
   if (error) return <p className="error">{error}</p>;
   if (!listings) return <Loader />;
