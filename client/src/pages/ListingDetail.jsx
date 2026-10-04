@@ -5,6 +5,8 @@ import Loader from '../components/Loader.jsx';
 import BookingBox from '../components/BookingBox.jsx';
 import Reviews from '../components/Reviews.jsx';
 
+import ImageGallery from '../components/ImageGallery.jsx';
+
 export default function ListingDetail() {
   const { id } = useParams();
   const [listing, setListing] = useState(null);
@@ -31,8 +33,7 @@ export default function ListingDetail() {
         {listing.city}, {listing.state}
       </p>
 
-      {/* TODO: image gallery / carousel when a listing has multiple images */}
-      <img className="hero-img" src={listing.images[0]} alt={listing.title} />
+      <ImageGallery images={listing.images} title={listing.title} />
 
       <div className="detail-layout">
         <div>

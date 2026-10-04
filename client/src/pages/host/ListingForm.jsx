@@ -14,7 +14,7 @@ const empty = {
   maxGuests: 2,
   bedrooms: 1,
   amenities: '',
-  imageUrl: '',
+  images: [''],
 };
 
 export default function ListingForm() {
@@ -30,19 +30,50 @@ export default function ListingForm() {
       setForm({
         ...empty,
         ...data,
-        amenities: data.amenities.join(', '),
-        imageUrl: data.images[0] || '',
+        amenities: (data.amenities || []).join(', '),
+        images: data.images && data.images.length > 0 ? data.images : [''],
       })
     );
   }, [id, isEdit]);
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
+  const handleImageChange = (index, value) => {
+    // If multiple URLs were pasted (separated by commas or newlines), split and insert them
+    if (value.includes(',') || value.includes('\n')) {
+      const splitUrls = value
+        .split(/[,\n]/)
+        .map((u) => u.trim())
+        .filter(Boolean);
+      if (splitUrls.length > 1) {
+        const nextImages = [...form.images];
+        nextImages.splice(index, 1, ...splitUrls);
+        setForm({ ...form, images: nextImages });
+        return;
+      }
+    }
+    const nextImages = [...form.images];
+    nextImages[index] = value;
+    setForm({ ...form, images: nextImages });
+  };
+
+  const addImageField = () => {
+    setForm({ ...form, images: [...form.images, ''] });
+  };
+
+  const removeImageField = (index) => {
+    if (form.images.length === 1) {
+      setForm({ ...form, images: [''] });
+    } else {
+      setForm({ ...form, images: form.images.filter((_, i) => i !== index) });
+    }
+  };
+
   // TODO: replace the image URL field with real image upload (Cloudinary / multer).
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    const { title, description, type, city, state, address, imageUrl, amenities } = form;
+    const { title, description, type, city, state, address, images, amenities } = form;
     const payload = {
       title,
       description,
@@ -55,7 +86,9 @@ export default function ListingForm() {
       bedrooms: Number(form.bedrooms),
       amenities: amenities.split(',').map((a) => a.trim()).filter(Boolean),
     };
-    if (imageUrl) payload.images = [imageUrl];
+    const validImages = (images || []).map((img) => img.trim()).filter(Boolean);
+    if (validImages.length > 0) payload.images = validImages;
+
     try {
       if (isEdit) await api.put(`/listings/${id}`, payload);
       else await api.post('/listings', payload);
@@ -90,7 +123,62 @@ export default function ListingForm() {
         </label>
       </div>
       <input placeholder="Amenities (comma separated: WiFi, AC, Parking)" value={form.amenities} onChange={set('amenities')} />
-      <input placeholder="Image URL (optional)" value={form.imageUrl} onChange={set('imageUrl')} />
+      
+      <div className="form-group">
+        <label className="form-label">
+          Listing Photos (Add one or more image URLs)
+        </label>
+        <div className="image-inputs-list">
+          {form.images.map((url, idx) => (
+            <div key={idx} className="image-input-row">
+              <input
+                placeholder={idx === 0 ? "Main image URL (e.g. https://...)" : `Image URL #${idx + 1}`}
+                value={url}
+                onChange={(e) => handleImageChange(idx, e.target.value)}
+              />
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => removeImageField(idx)}
+                title="Remove image"
+                aria-label="Remove image"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="form-actions-inline">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={addImageField}
+          >
+            + Add another image URL
+          </button>
+        </div>
+
+        {form.images.some((img) => img.trim()) && (
+          <div className="form-image-previews">
+            <span className="small muted">Live preview:</span>
+            <div className="preview-grid">
+              {form.images.filter((img) => img.trim()).map((img, i) => (
+                <div key={i} className="preview-item">
+                  <img
+                    src={img}
+                    alt={`Preview ${i + 1}`}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://placehold.co/100x70?text=Invalid+URL';
+                    }}
+                  />
+                  <span className="preview-label">{i === 0 ? 'Cover' : `#${i + 1}`}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {error && <p className="error">{error}</p>}
       <button className="btn">{isEdit ? 'Save changes' : 'Publish listing'}</button>
     </form>

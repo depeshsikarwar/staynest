@@ -80,6 +80,115 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; colo
 .loader { text-align: center; color: var(--muted); padding: 40px; }
 
 .hero-img { width: 100%; max-height: 460px; object-fit: cover; border-radius: var(--radius); margin: 16px 0; }
+
+/* Image Gallery & Carousel */
+.gallery {
+  position: relative;
+  margin: 16px 0 24px;
+  outline: none;
+}
+.gallery:focus-visible {
+  outline: 2px solid var(--primary);
+  border-radius: var(--radius);
+}
+.gallery-main {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #1a1614;
+}
+.gallery-hero-img {
+  width: 100%;
+  height: 460px;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+.gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  z-index: 2;
+  user-select: none;
+  padding: 0;
+}
+.gallery-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: translateY(-50%) scale(1.08);
+}
+.gallery-nav-btn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+.gallery-prev { left: 14px; }
+.gallery-next { right: 14px; }
+.gallery-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+  z-index: 2;
+  letter-spacing: 0.03em;
+}
+.gallery-thumbs {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.gallery-thumbs::-webkit-scrollbar { height: 6px; }
+.gallery-thumbs::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.gallery-thumb {
+  flex: 0 0 100px;
+  height: 70px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.2s, border-color 0.2s, transform 0.15s;
+}
+.gallery-thumb:hover {
+  opacity: 0.95;
+  transform: translateY(-2px);
+}
+.gallery-thumb.active {
+  opacity: 1;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .detail-layout { display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start; }
 .detail-layout h2 { text-transform: capitalize; }
 .amenities { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
@@ -99,6 +208,36 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; colo
 .role-toggle { display: flex; flex-direction: column; gap: 8px; }
 .role-toggle label { flex-direction: row; align-items: center; gap: 8px; color: var(--text); }
 .role-toggle input { width: auto; }
+
+/* Form Multi-Image Inputs */
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-label { font-weight: 500; color: var(--text); font-size: 0.95rem; }
+.image-inputs-list { display: flex; flex-direction: column; gap: 8px; }
+.image-input-row { display: flex; gap: 8px; align-items: center; }
+.btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+.form-actions-inline { display: flex; gap: 8px; }
+.form-image-previews { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.preview-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.preview-item {
+  position: relative;
+  width: 90px;
+  height: 64px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.preview-label {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
 
 .trip-list { display: flex; flex-direction: column; gap: 14px; }
 .trip { display: flex; gap: 16px; padding: 12px; align-items: center; }
