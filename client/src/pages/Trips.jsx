@@ -8,6 +8,8 @@ export default function Trips() {
   const location = useLocation();
   const [bookings, setBookings] = useState(null);
   const [error, setError] = useState('');
+  const [cancellingBooking, setCancellingBooking] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const load = () =>
     api
@@ -19,13 +21,17 @@ export default function Trips() {
     load();
   }, []);
 
-  // TODO: ask for confirmation before cancelling.
-  const cancel = async (id) => {
+  const confirmCancel = async () => {
+    if (!cancellingBooking) return;
+    setCancelling(true);
     try {
-      await api.patch(`/bookings/${id}/cancel`);
+      await api.patch(`/bookings/${cancellingBooking._id}/cancel`);
+      setCancellingBooking(null);
       load();
     } catch (err) {
       setError(getErrorMessage(err));
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -54,12 +60,50 @@ export default function Trips() {
               <span className={`status status-${b.status}`}>{b.status}</span>
               <strong>{formatINR(b.totalPrice)}</strong>
               {['pending', 'confirmed'].includes(b.status) && (
-                <button className="btn btn-danger" onClick={() => cancel(b._id)}>Cancel</button>
+                <button className="btn btn-danger" onClick={() => setCancellingBooking(b)}>Cancel</button>
               )}
             </div>
           </div>
         ))}
       </div>
+
+      {cancellingBooking && (
+        <div className="modal-backdrop" onClick={() => !cancelling && setCancellingBooking(null)}>
+          <div className="modal-card card" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 10px' }}>Cancel Booking</h3>
+            <p>
+              Are you sure you want to cancel your booking for{' '}
+              <strong>{cancellingBooking.listing?.title || 'this stay'}</strong>?
+            </p>
+            <div className="cancel-summary card">
+              <p className="small"><strong>Stay:</strong> {cancellingBooking.listing?.title}</p>
+              <p className="small">
+                <strong>Dates:</strong> {formatDate(cancellingBooking.checkIn)} → {formatDate(cancellingBooking.checkOut)} ({cancellingBooking.nights} night{cancellingBooking.nights > 1 ? 's' : ''})
+              </p>
+              <p className="small"><strong>Total:</strong> {formatINR(cancellingBooking.totalPrice)}</p>
+            </div>
+            <p className="muted small">This action cannot be undone.</p>
+            <div className="row" style={{ justifyContent: 'flex-end', marginTop: '16px', gap: '10px' }}>
+              <button
+                className="btn btn-ghost"
+                type="button"
+                onClick={() => setCancellingBooking(null)}
+                disabled={cancelling}
+              >
+                Keep Booking
+              </button>
+              <button
+                className="btn btn-danger"
+                type="button"
+                onClick={confirmCancel}
+                disabled={cancelling}
+              >
+                {cancelling ? 'Cancelling...' : 'Yes, Cancel Booking'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
